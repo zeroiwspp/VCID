@@ -9,7 +9,7 @@
 </head>
 <body>
 
-    <!-- 🔹 Navbar -->
+    <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
         <div class="container">
             <a class="navbar-brand" href="/">VICC - Task Manager</a>
@@ -20,13 +20,22 @@
                 <ul class="navbar-nav ms-auto">
                     <li class="nav-item"><a class="nav-link" href="/">Home</a></li>
                     <li class="nav-item"><a class="nav-link" href="/tasks">Tasks</a></li>
-                    <li class="nav-item"><a class="nav-link" href="/logout">Logout</a></li>
+                    {% if current_user.is_authenticated %}
+                        <li class="nav-item">
+                            <a class="nav-link disabled" tabindex="-1" aria-disabled="true">
+                                Logged in as: <strong>{{ current_user.username }}</strong>
+                            </a>
+                        </li>
+                        <li class="nav-item"><a class="nav-link" href="/logout">Logout</a></li>
+                    {% else %}
+                        <li class="nav-item"><a class="nav-link" href="/login">Login</a></li>
+                    {% endif %}
                 </ul>
             </div>
         </div>
     </nav>
 
-    <!-- 🔹 Page Content (Injected from Child Templates) -->
+    <!-- Page Content (Injected from Child Templates) -->
     <div class="container mt-4">
         {% block content %}{% endblock %}
     </div>
