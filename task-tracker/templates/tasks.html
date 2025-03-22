@@ -7,6 +7,7 @@
     <div class="card p-4 shadow-sm mb-4">
         <h2>Add a New Task</h2>
         <form action="/tasks" method="POST">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">  <!-- CSRF Token -->
             <div class="mb-3">
                 <label class="form-label">Title:</label>
                 <input type="text" name="title" class="form-control" required>
@@ -29,11 +30,13 @@
                 </div>
                 <div>
                     <form action="/tasks/{{ task.id }}" method="POST" class="d-inline">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">  <!-- CSRF Token -->
                         <input type="hidden" name="_method" value="PUT">
                         <input type="checkbox" name="completed" {% if task.completed %}checked{% endif %} onchange="this.form.submit()">
                         <label>Completed</label>
                     </form>
                     <form action="/tasks/{{ task.id }}" method="POST" class="d-inline">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">  <!-- CSRF Token -->
                         <input type="hidden" name="_method" value="DELETE">
                         <button type="submit" class="btn btn-danger btn-sm">Delete</button>
                     </form>
