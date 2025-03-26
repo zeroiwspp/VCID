@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 
+{% set edit_id = request.args.get('edit') %}
 {% block content %}
     <h1 class="text-center">Task Manager</h1>
 
@@ -25,22 +26,45 @@
     <ul class="list-group">
         {% for task in tasks %}
             <li class="list-group-item d-flex justify-content-between align-items-center">
-                <div>
-                    <strong>{{ task.title }}</strong> - {{ task.description }}
-                </div>
-                <div>
-                    <form action="/tasks/{{ task.id }}" method="POST" class="d-inline">
-                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">  <!-- CSRF Token -->
+                {% if edit_id == task.id|string %}
+                    <!-- Edit Mode -->
+                    <form action="/tasks/{{ task.id }}" method="POST" class="w-100 d-flex justify-content-between align-items-center">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                         <input type="hidden" name="_method" value="PUT">
-                        <input type="checkbox" name="completed" {% if task.completed %}checked{% endif %} onchange="this.form.submit()">
-                        <label>Completed</label>
+                        <div class="flex-grow-1 me-3">
+                            <input type="text" name="title" value="{{ task.title }}" class="form-control mb-2" required>
+                            <input type="text" name="description" value="{{ task.description }}" class="form-control">
+                        </div>
+                        <div>
+                            <button type="submit" class="btn btn-success btn-sm me-2">Save</button>
+                            <a href="/tasks" class="btn btn-secondary btn-sm">Cancel</a>
+                        </div>
                     </form>
-                    <form action="/tasks/{{ task.id }}" method="POST" class="d-inline">
-                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">  <!-- CSRF Token -->
-                        <input type="hidden" name="_method" value="DELETE">
-                        <button type="submit" class="btn btn-danger btn-sm">Delete</button>
-                    </form>
-                </div>
+                {% else %}
+                    <!-- View Mode -->
+                    <div>
+                        <strong>{{ task.title }}</strong> - {{ task.description }}
+                    </div>
+                    <div>
+                        <!-- Completed Checkbox -->
+                        <form action="/tasks/{{ task.id }}" method="POST" class="d-inline">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <input type="hidden" name="_method" value="PUT">
+                            <input type="checkbox" name="completed" {% if task.completed %}checked{% endif %} onchange="this.form.submit()">
+                            <label>Completed</label>
+                        </form>
+    
+                        <!-- Edit Button -->
+                        <a href="/tasks?edit={{ task.id }}" class="btn btn-warning btn-sm me-2">Edit</a>
+    
+                        <!-- Delete -->
+                        <form action="/tasks/{{ task.id }}" method="POST" class="d-inline">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <input type="hidden" name="_method" value="DELETE">
+                            <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                        </form>
+                    </div>
+                {% endif %}
             </li>
         {% endfor %}
     </ul>
