@@ -12,8 +12,10 @@ csrf = CSRFProtect(app)
 # Show homepage
 @app.route("/")
 def home():
+    if current_user.is_authenticated:
+        return redirect(url_for("tasks"))
     return render_template("index.html")
-
+    
 # Register Route
 @app.route("/register", methods=["GET", "POST"])
 def register():
@@ -96,7 +98,7 @@ def tasks():
 
         return redirect(url_for("tasks"))  # Refresh the page
 
-    user_tasks = Task.query.filter_by(user_id=current_user.id).all()
+    user_tasks = Task.query.filter_by(user_id=current_user.id).order_by(Task.id.asc()).all()
     return render_template("tasks.html", tasks=user_tasks)
 
 # Handle task updates (mark as completed)
@@ -108,11 +110,21 @@ def update_or_delete_task(task_id):
     if not task:
         return "Task not found", 404
 
-    if request.form.get("_method") == "PUT":
-        task.completed = request.form.get("completed") == "on"
+    method = request.form.get("_method")
+
+    if method == "PUT":
+        # Check if this is a "completed" checkbox or an actual edit form
+        if "title" in request.form:
+            # Handle full task edit (title + description)
+            task.title = escape(request.form.get("title"))
+            task.description = escape(request.form.get("description", ""))
+        else:
+            # Handle completed checkbox
+            task.completed = request.form.get("completed") == "on"
+
         db.session.commit()
 
-    elif request.form.get("_method") == "DELETE":
+    elif method == "DELETE":
         db.session.delete(task)
         db.session.commit()
 
